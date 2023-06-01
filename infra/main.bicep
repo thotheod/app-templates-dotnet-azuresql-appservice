@@ -23,6 +23,7 @@ param resourceGroupName string = ''
 param sqlServerName string = ''
 param sqlDatabaseName string = ''
 param webServiceName string = ''
+param appSvcUserAssignedManagedIdenityName string = ''
 
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
@@ -42,11 +43,31 @@ var tags = { 'azd-env-name': environmentName }
 // 'Telemetry is by default enabled. The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services.
 var enableTelemetry = true   
 
-// Organize resources in a resource group
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
-  location: location
-  tags: tags
+// // Organize resources in a resource group
+// resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+//   name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
+//   location: location
+//   tags: tags
+// }
+
+// need referece to exisitng RG to deploy the rest of the resources
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  name: resourceGroupName
+}
+
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {
+  scope: rg
+  name: appServicePlanName
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01'  existing = {
+  scope: rg
+  name: keyVaultName
+}
+
+resource muai 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
+  scope: rg
+  name: appSvcUserAssignedManagedIdenityName
 }
 
 // The application frontend
@@ -58,10 +79,11 @@ module web './app/web.bicep' = {
     location: location
     tags: tags
     applicationInsightsName: monitoring.outputs.applicationInsightsName
-    appServicePlanId: appServicePlan.outputs.id
+    appServicePlanId: appServicePlan.id
     appSettings: {
       URLAPI: api.outputs.SERVICE_API_URI
     }
+    userAssignedIdenttityId: muai.id
   }
 }
 
@@ -74,25 +96,27 @@ module api './app/api.bicep' = {
     location: location
     tags: tags
     applicationInsightsName: monitoring.outputs.applicationInsightsName
-    appServicePlanId: appServicePlan.outputs.id
-    keyVaultName: keyVault.outputs.name
+    appServicePlanId: appServicePlan.id
+    keyVaultName: keyVault.name
     appSettings: {
       AZURE_SQL_CONNECTION_STRING_KEY: sqlServer.outputs.connectionStringKey
     }
+    userAssignedIdenttityId: muai.id
   }
 }
 
-// Give the API access to KeyVault
-module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
-  name: 'api-keyvault-access'
-  scope: rg
-  params: {
-    keyVaultName: keyVault.outputs.name
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-  }
-}
+// LZA has a keyvault
+// // Give the API access to KeyVault
+// module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
+//   name: 'api-keyvault-access'
+//   scope: rg
+//   params: {
+//     keyVaultName: keyVault.outputs.name
+//     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+//   }
+// }
 
-// The application database
+
 module sqlServer './app/db.bicep' = {
   name: 'sql'
   scope: rg
@@ -103,35 +127,39 @@ module sqlServer './app/db.bicep' = {
     tags: tags
     sqlAdminPassword: sqlAdminPassword
     appUserPassword: appUserPassword
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVault.name
   }
 }
 
-// Create an App Service Plan to group applications under the same payment plan and SKU
-module appServicePlan './core/host/appserviceplan.bicep' = {
-  name: 'appserviceplan'
-  scope: rg
-  params: {
-    name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
-    location: location
-    tags: tags
-    sku: {
-      name: 'B2'
-    }
-  }
-}
+// // LZA has App service plan
+// // Create an App Service Plan to group applications under the same payment plan and SKU
+// module appServicePlan './core/host/appserviceplan.bicep' = {
+//   name: 'appserviceplan'
+//   scope: rg
+//   params: {
+//     name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
+//     location: location
+//     tags: tags
+//     sku: {
+//       name: 'B2'
+//     }
+//   }
+// }
 
+
+
+// LZA has keyvault
 // Store secrets in a keyvault
-module keyVault './core/security/keyvault.bicep' = {
-  name: 'keyvault'
-  scope: rg
-  params: {
-    name: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${resourceToken}'
-    location: location
-    tags: tags
-    principalId: principalId
-  }
-}
+// module keyVault './core/security/keyvault.bicep' = {
+//   name: 'keyvault'
+//   scope: rg
+//   params: {
+//     name: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${resourceToken}'
+//     location: location
+//     tags: tags
+//     principalId: principalId
+//   }
+// }
 
 // Monitor application with Azure Monitor
 module monitoring './core/monitor/monitoring.bicep' = {
@@ -177,8 +205,8 @@ output AZURE_SQL_CONNECTION_STRING_KEY string = sqlServer.outputs.connectionStri
 
 // App outputs
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
-output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
-output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
+// output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
+// output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_LOAD_TEST_NAME string = loadtest.name

@@ -8,6 +8,9 @@ param appServicePlanId string
 param keyVaultName string = ''
 param managedIdentity bool = !empty(keyVaultName)
 
+@description('Optional. The ID(s) to assign to the resource.')
+param userAssignedIdentities object = {}
+
 // Runtime Properties
 @allowed([
   'dotnet', 'dotnetcore', 'dotnet-isolated', 'node', 'python', 'java', 'powershell', 'custom'
@@ -62,7 +65,11 @@ resource appService 'Microsoft.Web/sites@2022-03-01' = {
     httpsOnly: true
   }
 
-  identity: { type: managedIdentity ? 'SystemAssigned' : 'None' }
+  // identity: { type: managedIdentity ? 'SystemAssigned' : 'None' }
+  identity: {
+    type: 'SystemAssigned, UserAssigned'
+    userAssignedIdentities: !empty(userAssignedIdentities) ? userAssignedIdentities : null 
+  }
 
   resource configAppSettings 'config' = {
     name: 'appsettings'

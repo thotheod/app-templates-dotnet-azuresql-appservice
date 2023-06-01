@@ -8,6 +8,7 @@ param appServicePlanId string
 param appSettings object = {}
 param keyVaultName string
 param serviceName string = 'api'
+param userAssignedIdenttityId string
 
 module api '../core/host/appservice.bicep' = {
   name: '${name}-app-module'
@@ -24,6 +25,9 @@ module api '../core/host/appservice.bicep' = {
     runtimeName: 'dotnetcore'
     runtimeVersion: '6.0'
     scmDoBuildDuringDeployment: false
+    userAssignedIdentities: {
+      '${userAssignedIdenttityId}': {}
+    }
   }
 }
 

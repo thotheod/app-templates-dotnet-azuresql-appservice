@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = "";
@@ -36,10 +36,10 @@ await using (var scope = app.Services.CreateAsyncScope())
     await DbInitializer.Initialize(db);
 }
 
-//if (env.IsDevelopment())
-//{
-//    app.UseDeveloperExceptionPage();
-//}
+// if (env.IsDevelopment())
+// {
+    app.UseDeveloperExceptionPage();
+// }
 
 app.UseHttpsRedirection();
 

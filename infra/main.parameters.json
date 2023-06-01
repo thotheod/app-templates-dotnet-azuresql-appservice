@@ -19,6 +19,20 @@
     },
     "useAPIM": {
       "value": "${USE_APIM=false}"
+    },
+    "resourceGroupName": {
+      "value": "rg-spoke-appsvclza3-dev-northeurope"
+    },
+    "appServicePlanName": {
+      "value": "plan-appsvclza3-dev-neu"
+    },
+    "keyVaultName": {
+      "value": "kv-appsvclza3-dev-neu-mj"
+    },
+    "appSvcUserAssignedManagedIdenityName": {
+      "value": "id-appsvclza3-dev-neu-appSvc"
     }
+
+    
   }
 }

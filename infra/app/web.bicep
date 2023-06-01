@@ -6,6 +6,7 @@ param appCommandLine string = ''
 param applicationInsightsName string = ''
 param appServicePlanId string
 param appSettings object = {}
+param userAssignedIdenttityId string
 
 module web '../core/host/appservice.bicep' = {
   name: '${name}-deployment'
@@ -20,6 +21,9 @@ module web '../core/host/appservice.bicep' = {
     runtimeVersion: '6.0'
     tags: union(tags, { 'azd-service-name': serviceName })
     scmDoBuildDuringDeployment: false
+    userAssignedIdentities: {
+      '${userAssignedIdenttityId}': {}
+    }
   }
 }
 
