@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${AZURE_ENV_NAME}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "resourceGroupName": {
+      "value": "rg-spoke-appsvc1-dev-northeurope"
+    },
+    "appServicePlanName": {
+      "value": "plan-appsvc1-dev-neu"
+    },
+    "keyVaultName": {
+      "value": "kv-appsvc1-dev-neu-2yyf7"
+    },
+    "appSvcUserAssignedManagedIdenityName": {
+      "value": "id-appsvc1-dev-neu-appSvc"
+    },
+    "applicationInsightsName": {
+      "value": "appi-app-appsvc1-dev-neu-2yyf7n"
+    },
+    "logAnalyticsWsName": {
+      "value": "log-appsvc1-dev-neu"
+    },
+    "subnetIdForVnetInjection": {
+      "value": "/subscriptions/f446c3cb-cee2-43df-a12c-2c858a062fdd/resourceGroups/rg-spoke-appsvc1-dev-northeurope/providers/Microsoft.Network/virtualNetworks/vnet-appsvc1-dev-neu-spoke/subnets/snet-appSvc-vnet-appsvc1-dev-neu-spoke"
+    },
+    "subnetPrivateEndpointId": {
+      "value": "/subscriptions/f446c3cb-cee2-43df-a12c-2c858a062fdd/resourceGroups/rg-spoke-appsvc1-dev-northeurope/providers/Microsoft.Network/virtualNetworks/vnet-appsvc1-dev-neu-spoke/subnets/snet-pe-vnet-appsvc1-dev-neu-spoke"
+    },
+    "vnetHubResourceId": {
+      "value": "/subscriptions/f446c3cb-cee2-43df-a12c-2c858a062fdd/resourceGroups/rg-hub-appsvc1-dev-northeurope/providers/Microsoft.Network/virtualNetworks/vnet-appsvc1-dev-neu-hub"
+    },
+    "sqlServerName": {
+      "value": "sql-appsvc1-dev-neu-2yyf7n"
+    }
+  }
+}

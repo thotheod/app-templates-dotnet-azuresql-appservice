@@ -3,6 +3,10 @@
 name: app-templates-dotnet-azuresql-appservice
 metadata:
   template: app-templates-dotnet-azuresql-appservice@0.0.1-beta
+infra:
+    provider: "bicep"
+    path: "infra-lza"
+    module: "main"  
 services:
   web:
     project: ./src/ContosoUniversity.WebApplication
