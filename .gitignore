@@ -1,1 +1,10 @@
-.azure/
+#Azure Dev CLI env variables 
+.azure
+
+*.local.*
+
+# local .vscode folder
+**/.vscode/*
+
+# local .vscode folder
+**/.vs/*
