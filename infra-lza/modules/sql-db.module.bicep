@@ -62,7 +62,7 @@ resource sqlAzureConnectionStringSercret 'Microsoft.KeyVault/vaults/secrets@2022
   properties: {
     value: 'Server=${sqlServerName}${environment().suffixes.sqlServerHostname};Authentication=Active Directory Default;Database=${databaseName};'
     // Server=tcp:sql-5w5yk3pw3wgfm.database.windows.net,1433;Initial Catalog=SchoolContext;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication="Active Directory Default";
-    // Server=sql-5w5yk3pw3wgfm.database.windows.net; Database=SchoolContext; User=appUser; Password=dDPDfo3T3Vf9x80
+    // Server=sql-5w5yk3pw3wgfm.database.windows.net; Database=SchoolContext; User=appUser; Password=xxxxxx
   }
 }
 
