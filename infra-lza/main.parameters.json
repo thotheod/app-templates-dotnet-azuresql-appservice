@@ -17,6 +17,12 @@
     "keyVaultName": {
       "value": "kv-appsvc1-dev-neu-2yyf7"
     },
+    "afdName": {
+      "value": "afd-appsvc1-dev-neu"
+    },
+    "wafPolicyName": {
+      "value": "fdfpappsvc1devneu"
+    },
     "appSvcUserAssignedManagedIdenityName": {
       "value": "id-appsvc1-dev-neu-appSvc"
     },

@@ -25,6 +25,12 @@ param appServicePlanName string
 param keyVaultName string
 
 @description('TODO: Add description')
+param afdName string 
+
+@description('TODO: Add description')
+param wafPolicyName string 
+
+@description('TODO: Add description')
 param resourceGroupName string
 
 @description('TODO: Add description')
@@ -66,7 +72,9 @@ var contosoApiAppName = 'contoso-apiapp-${uniqueIdShort}'
 var sqlDbConnectionStringKey = 'AZURE-SQL-CONNECTION-STRING'
 
 // 'Telemetry is by default enabled. The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services.
-var enableTelemetry = true   
+var enableTelemetry = true 
+
+var afdContosoWebEndPointName = 'contosoWeb-${ uniqueIdShort}' 
 
 
 
@@ -123,6 +131,40 @@ module webApp 'modules/web-app.module.bicep' = {
     appInsightId: appInsights.id
     subnetPrivateEndpointId: subnetPrivateEndpointId
   }
+}
+
+module afd 'modules/afd.module.bicep' = {
+  scope: rg
+  name: take ('AzureFrontDoor-NewOrigin-deployment', 64)
+  params: {
+    afdName: afdName
+    endpointName: afdContosoWebEndPointName
+    originGroupName: afdContosoWebEndPointName
+    origins: [
+      {
+          name: webApp.outputs.webAppName  //1-50 Alphanumerics and hyphens
+          hostname: webApp.outputs.webAppHostName
+          enabledState: true
+          privateLinkOrigin: {
+            privateEndpointResourceId: webApp.outputs.webAppResourceId
+            privateLinkResourceType: 'sites'
+            privateEndpointLocation: webApp.outputs.webAppLocation
+          }
+      }
+    ]
+    wafPolicyName: wafPolicyName
+  }
+}
+
+module autoApproveAfdPe 'modules/approve-afd-pe.module.bicep' = {
+  scope: rg
+  name: take ('autoApproveAfdPe-deployment', 64)
+  params: { 
+    location: location    
+  }
+  dependsOn: [
+    afd
+  ]
 }
 
 module apiApp 'modules/api-app.module.bicep' = {
