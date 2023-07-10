@@ -60,6 +60,7 @@ var appSettingsExtra = union(appSettings,
       {
         SCM_DO_BUILD_DURING_DEPLOYMENT: string(scmDoBuildDuringDeployment)
         ENABLE_ORYX_BUILD: string(enableOryxBuild)
+        AZURE_CLIENT_ID: muai.properties.clientId
       },
       !empty(keyvaultName) ? { AZURE_KEY_VAULT_ENDPOINT: keyvault.properties.vaultUri } : {})
 
