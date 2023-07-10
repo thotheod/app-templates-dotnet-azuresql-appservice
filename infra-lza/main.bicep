@@ -51,6 +51,9 @@ param sqlServerName string = ''
 @description('Default name for the SQL Database')
 param sqlDatabaseName string = 'SchoolContext'
 
+@description('the name of the identity with Contributor Role that will run the Auto Approval of the AFD PE')
+param idAfdPeAutoApproverName string
+
 // @description('SQL Server administrator password')
 // @secure()
 // param sqlAdminPassword string
@@ -162,7 +165,8 @@ module autoApproveAfdPe 'modules/approve-afd-pe.module.bicep' = {
   scope: rg
   name: take ('autoApproveAfdPe-deployment', 64)
   params: { 
-    location: location    
+    location: location 
+    idAfdPeAutoApproverName: idAfdPeAutoApproverName   
   }
   dependsOn: [
     afd

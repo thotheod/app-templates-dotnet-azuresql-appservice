@@ -6,30 +6,27 @@ param location string
 param utcValue string = utcNow()
 
 @description('Optional. The name of the user-assigned identity to be used to auto-approve the private endpoint connection of the AFD. Changing this forces a new resource to be created.')
-param idAfdPeAutoApproverName string = guid(resourceGroup().id, 'userAssignedIdentity')
+param idAfdPeAutoApproverName string
 
 
-var roleAssignmentName = guid(resourceGroup().id, 'contributor')
-var contributorRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var deploymentScriptName = 'runAfdApproval'
 
 
 @description('The User Assigned MAnaged Identity that will be given Contributor role on the Resource Group in order to auto-approve the Private Endpoint Connection of the AFD.')
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
   name: idAfdPeAutoApproverName
-  location: location
 }
 
-@description('The role assignment that will be created to give the User Assigned Managed Identity Contributor role on the Resource Group in order to auto-approve the Private Endpoint Connection of the AFD.')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: roleAssignmentName
-  scope: resourceGroup()
-  properties: {
-    roleDefinitionId: contributorRoleDefinitionId
-    principalId: userAssignedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}
+// @description('The role assignment that will be created to give the User Assigned Managed Identity Contributor role on the Resource Group in order to auto-approve the Private Endpoint Connection of the AFD.')
+// resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//   name: roleAssignmentName
+//   scope: resourceGroup()
+//   properties: {
+//     roleDefinitionId: contributorRoleDefinitionId
+//     principalId: userAssignedIdentity.properties.principalId
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
 @description('The deployment script that will be used to auto-approve the Private Endpoint Connection of the AFD.')
 resource runAfdApproval 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -56,9 +53,6 @@ resource runAfdApproval 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
   }
-  dependsOn: [
-    roleAssignment
-  ]
 }
 
 @description('The logs of the deployment script that will be used to auto-approve the Private Endpoint Connection of the AFD.')

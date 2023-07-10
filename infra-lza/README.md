@@ -18,6 +18,8 @@ Before we delve into the detailed steps, let's highlight the most important bene
 
 ### 1. Deploy the App Service LZA
 Head to [App Service LZA Secure Baseline](https://github.com/Azure/appservice-landing-zone-accelerator/tree/main/scenarios/secure-baseline-multitenant) scenario and deploy the LZA. Choose any of the deployment options (the easier one is the *Deploy To Azure* button), but make sure you select the following options
+- **Deployment Settings**: 
+  - Web App Base Os: Linux
 - **Jump-Box Settings (VM)**: You can leave the default options, but your deployment experience will be improved if you make the below choices:
   - Deploy Jump-box: yes
   - Install Useful CLIs: yes
@@ -59,3 +61,22 @@ If you selected the feature flags as described above, when deploying the LZA, yo
 - run azd auth login
 - edit main.parameters.json file and add the names of the LZA resources (i.e. afdName, AppServicePlanName etc)
 - Once the parameters are filled in, deploy ith `azd up` and select as environment, location and subscription the values you have previously selected  for the LZA
+
+#### 5. Create the SQL user and grant minimal permissions - for the web app User Assigned Managed Identity
+Open SQL Server management Studio, connect to the Azure SQL Server with AAD User with MFA. Make sure you have added this user in the AAD SQL Admin Group.
+
+Find the user assigned managed identity that is assigned in the web app well (an idenity in the spoke RG starting with id- and ending with -appSvc)
+
+In the SSMS run the following SQL on the SchollContext Database
+```sql
+
+    	DROP USER [id-appsvc03-test-neu-appSvc];
+		GO
+		CREATE USER [id-appsvc03-test-neu-appSvc]FROM EXTERNAL PROVIDER;
+		GO
+		--ALTER ROLE db_owner ADD MEMBER [id-appsvc03-test-neu-appSvc];
+		--GO
+		ALTER ROLE db_datareader ADD MEMBER [id-appsvc03-test-neu-appSvc];
+		ALTER ROLE db_datawriter  ADD MEMBER [id-appsvc03-test-neu-appSvc];
+		GO
+```

@@ -32,6 +32,9 @@
     "logAnalyticsWsName": {
       "value": "log-appsvc1-dev-neu"
     },
+    "idAfdPeAutoApproverName": {
+      "value": "id-appsvc03-test-neu-AfdApprovePe"
+    },
     "subnetIdForVnetInjection": {
       "value": "/subscriptions/f446c3cb-cee2-43df-a12c-2c858a062fdd/resourceGroups/rg-spoke-appsvc1-dev-northeurope/providers/Microsoft.Network/virtualNetworks/vnet-appsvc1-dev-neu-spoke/subnets/snet-appSvc-vnet-appsvc1-dev-neu-spoke"
     },
