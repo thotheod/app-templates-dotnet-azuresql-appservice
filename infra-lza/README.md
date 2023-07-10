@@ -9,9 +9,11 @@ Before we delve into the detailed steps, let's highlight the most important bene
 
 ## Deployment to App Service LZA highlights
 - All the Azure resources (app service web apps, azure SQL, keyvault etc) are deployed internally with private endpoints
-- The Web Apps are Virtual Network integrated so that they can resolve and reach internal (private endoints)
-- Web app egress traffic is controlled and monitored with Azure Firewall
+- The Web Apps are Virtual Network integrated so that they can resolve and reach internal (private) endoints / resources
+- Web App egress traffic is controlled and monitored with Azure Firewall
+- Web Apps utilize User Assigned Managed Identities. For UAMI to work correctly we need to set up the `AZURE_CLIENT_ID` enviroment variable (Web App Configuration). More information: https://learn.microsoft.com/en-us/aspnet/core/security/key-vault-configuration?view=aspnetcore-7.0#use-managed-identities-for-azure-resources
 - Contoso University web app is exposed to public internet through Azure Front Door Premium with WAF Policies
+- [Connection String to database is passwordless](https://learn.microsoft.com/en-us/samples/azure-samples/azure-sql-db-who-am-i/azure-sql-db-passwordless-connections/)
 - Deployment of App Template must be executed through the VM Jumpbox (or from a secure VPN Connection)
 
 ## Deployment Steps
@@ -70,13 +72,22 @@ Find the user assigned managed identity that is assigned in the web app well (an
 In the SSMS run the following SQL on the SchollContext Database
 ```sql
 
-    	DROP USER [id-appsvc03-test-neu-appSvc];
-		GO
-		CREATE USER [id-appsvc03-test-neu-appSvc]FROM EXTERNAL PROVIDER;
-		GO
-		--ALTER ROLE db_owner ADD MEMBER [id-appsvc03-test-neu-appSvc];
-		--GO
-		ALTER ROLE db_datareader ADD MEMBER [id-appsvc03-test-neu-appSvc];
-		ALTER ROLE db_datawriter  ADD MEMBER [id-appsvc03-test-neu-appSvc];
-		GO
+DROP USER [id-appsvc03-test-neu-appSvc];
+GO
+CREATE USER [id-appsvc03-test-neu-appSvc]FROM EXTERNAL PROVIDER;
+GO
+ALTER ROLE db_owner ADD MEMBER [id-appsvc03-test-neu-appSvc];
+GO		
 ```
+
+#### 6. restart the contoso api app
+Once you run the above SQL commands, you need to restart the API Application (i.e. contoso-apiapp-7rz7c). This is required because on startup the app is initializing the Database. 
+
+#### 7. Test the deployment
+After a few minutes, you can check with SSMS to see if there are tables in the `SchollContext` databae. If yes, then the api-app has connected successfully to the SQL DB and inititialized the DB Tables of the application. From inside the jumbox you can check in edge browser the deployed services endpoints, i.e.
+    - https://contoso-apiapp-7rz7c.azurewebsites.net/
+    - https://contoso-webapp-7rz7c.azurewebsites.net/api/values
+
+Those endpoints should not be reachable outside the jump-box (i.e. your local PC if no VPN Connection is established).
+
+To test if the Contoso web application is published successfully, you need to go to the Azure Front Door resource, on the spoke RG, and find the endpoint which starts with the prefix `contosoWeb`, i.e. https://contosoWeb-7rz7c-btbyegdwc9cxgugj.z01.azurefd.net. Testing this URL in the web browser should show a fully functional web application.
