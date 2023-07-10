@@ -83,8 +83,10 @@ var afdContosoWebEndPointName = 'contosoWeb-${ uniqueIdShort}'
 // ================ //
 
 // need referece to exisitng RG to deploy the rest of the resources
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
+  location: location
+  tags: tags
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' existing = {

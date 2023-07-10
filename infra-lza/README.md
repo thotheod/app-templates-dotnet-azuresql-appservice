@@ -54,3 +54,8 @@ If you selected the feature flags as described above, when deploying the LZA, yo
 - Clone the repo https://github.com/thotheod/app-templates-dotnet-azuresql-appservice.git and open it in VSCode
 - Edit azure.yaml file, change Infra/Path value from *infra* to *infra-lza*
 > TODO: change URL once PR merged. For now move to Branch feat/deployToLza
+
+#### 4. Deploy with azd - both infra resources and apps
+- run azd auth login
+- edit main.parameters.json file and add the names of the LZA resources (i.e. afdName, AppServicePlanName etc)
+- Once the parameters are filled in, deploy ith `azd up` and select as environment, location and subscription the values you have previously selected  for the LZA
