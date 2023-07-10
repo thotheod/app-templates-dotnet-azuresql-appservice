@@ -63,6 +63,7 @@ If you selected the feature flags as described above, when deploying the LZA, yo
 - run azd auth login
 - edit main.parameters.json file and add the names of the LZA resources (i.e. afdName, AppServicePlanName etc)
 - Once the parameters are filled in, deploy ith `azd up` and select as environment, location and subscription the values you have previously selected  for the LZA
+- The deployment of the web applications and the extra azure resources required can take a little bit more than 10 minutes. 
 
 #### 5. Create the SQL user and grant minimal permissions - for the web app User Assigned Managed Identity
 Open SQL Server management Studio, connect to the Azure SQL Server with AAD User with MFA. Make sure you have added this user in the AAD SQL Admin Group.
